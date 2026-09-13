@@ -435,6 +435,34 @@ def render_distribution(frame: pd.DataFrame) -> None:
             st.plotly_chart(figure)
 
 
+    
+
+def render_top_source_ips(frame: pd.DataFrame) -> None:
+    """Show the source IPs generating the most observed flows."""
+    st.subheader("Top Source IPs")
+
+    if frame.empty:
+        st.info("No flows yet.")
+        return
+
+    counts = (
+        frame["src_ip"]
+        .fillna("UNKNOWN")
+        .value_counts()
+        .head(10)
+        .reset_index()
+    )
+
+    counts.columns = ["Source IP", "Flows"]
+
+    st.dataframe(
+        counts,
+        hide_index=True,
+        use_container_width=True,
+    )
+
+
+
 def render_timeline(frame: pd.DataFrame) -> None:
     """Threat class over the sequence of observed flows."""
     if frame.empty or "flow_id" not in frame.columns:
@@ -811,6 +839,7 @@ def main() -> None:
     render_reliability(frame, records)
     st.divider()
     render_distribution(frame)
+    render_top_source_ips(frame)
     render_timeline(frame)
     st.divider()
     filtered = render_alert_table(frame)
